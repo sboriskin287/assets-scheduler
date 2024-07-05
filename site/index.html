@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Popup Example</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container text-center mt-5">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#periodModal">
+        Open Form
+    </button>
+</div>
+
+<!-- Period Modal -->
+<div class="modal fade" id="periodModal" tabindex="-1" aria-labelledby="periodModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="periodModalLabel">Form Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="start_date">Start Date:</label>
+                        <input type="text" class="form-control datepicker" id="start_date" name="start_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date:</label>
+                        <input type="text" class="form-control datepicker" id="end_date" name="end_date">
+                    </div>
+                    <button type="submit" class="btn btn-primary" hx-post="/period" hx-target="#periods"
+                            hx-swap="beforeend">Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="periods" class="container">
+    {{ range . }}
+    {{ block "period" . }}
+    <div class="row">
+        <button class="btn btn-primary {{ .EvalColor }}" type="button" data-bs-toggle="collapse" data-bs-target="#details_{{ .Id }}"
+                aria-expanded="false" aria-controls="details_{{ .Id }}">
+            Period {{ .FormatStartDate }} - {{ .FormatEndDate }}
+        </button>
+    </div>
+    <div id="details_{{ .Id }}" class="collapse" hx-get="/period/{{ .Id }}/details"
+         hx-target="#details_content_{{ .Id }}" hx-trigger="shown.bs.collapse">
+        {{ block "period_details" . }}
+        <div id="details_content_{{ .Id }}">
+            {{ range .Details }}
+            {{ block "period_detail" . }}
+            <div class="container mt-1">
+                <div class="p-1 {{ .EvalColor }} bg-gradient text-white text-center rounded">
+                    {{ .Title }}
+                </div>
+            </div>
+            {{ end }}
+            {{ end }}
+        </div>
+        {{ end }}
+        <div class="container mt-1">
+            <div class="d-grid">
+                <button type="button" class="btn bg-info p-1 bg-gradient text-white text-center rounded"
+                        data-bs-toggle="modal"
+                        data-bs-target="#period_detail_modal_{{ .Id }}">
+                    Add
+                </button>
+            </div>
+        </div>
+        <!--Period Detail Modal-->
+        <div class="modal fade" id="period_detail_modal_{{ .Id }}" tabindex="-1"
+             aria-labelledby="period_detail_modal_label_{{ .Id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="period_detail_modal_label_{{ .Id }}">Form Title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="title_{{ .Id }}">Title:</label>
+                                <input type="text" class="form-control datepicker" id="title_{{ .Id }}" name="title">
+                            </div>
+                            <div class="form-group">
+                                <label for="amount_{{ .Id }}">Amount:</label>
+                                <input type="number" class="form-control datepicker" id="amount_{{ .Id }}"
+                                       name="amount">
+                            </div>
+                            <div class="form-group">
+                                <label for="type_{{ .Id }}">Type:</label>
+                                <select class="form-select" id="type_{{ .Id }}" aria-label="Select type" name="type">
+                                    <option value="EXPENSE" selected>Expense</option>
+                                    <option value="INCOME">Income</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary" hx-post="/period/{{ .Id }}/details"
+                                    hx-target="#details_content_{{ .Id }}"
+                                    hx-swap="beforeend">
+                                Submit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ end }}
+    {{ end }}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+<script src="https://unpkg.com/htmx.org@1.9.12"
+        integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+        crossorigin="anonymous"></script>
+</body>
+</html>
