@@ -1,0 +1,24 @@
+version: '3.1'
+services:
+  mongodb:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
+    volumes:
+      - mongo-data:/data/db
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      MONGO_URI: ${MONGO_URI}
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo-data:
+
+

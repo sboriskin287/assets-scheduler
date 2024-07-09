@@ -10,7 +10,7 @@ import (
 
 func CreateMongoClient() *mongo.Client {
 	ctx := context.TODO()
-	client, err := mongo.Connect(ctx, options.Client().SetAppName("assets-scheduler").ApplyURI(os.Getenv("MONGO_URL")))
+	client, err := mongo.Connect(ctx, options.Client().SetAppName("assets-scheduler").ApplyURI(os.Getenv("MONGO_URI")))
 	if err != nil {
 		panic(err)
 	}

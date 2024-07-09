@@ -33,12 +33,13 @@ func NewPeriodService(client *mongo.Client) *PeriodService {
 func (ps *PeriodService) Index(w http.ResponseWriter, _ *http.Request) {
 	periods, err := ps.GetPeriods()
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	tmpl := template.Must(template.ParseFiles(index))
 	err = tmpl.Execute(w, periods)
 	if err != nil {
-		log.Panic(err)
+		log.Print(err)
 	}
 }
 
@@ -52,10 +53,12 @@ func (ps *PeriodService) CreatePeriod(w http.ResponseWriter, r *http.Request) {
 	period := NewPeriod(startDate, endDate)
 	objId, err := ps.createPeriod(period)
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	insertedPeriod, err := ps.getPeriodById(objId)
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	tmpl := template.Must(template.ParseFiles(index))
@@ -66,10 +69,12 @@ func (ps *PeriodService) GetPeriodDetails(w http.ResponseWriter, r *http.Request
 	vars := mux.Vars(r)
 	id, err := primitive.ObjectIDFromHex(vars["id"])
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	cur, err := ps.periodDetailsCol.Find(context.TODO(), bson.M{"period_id": id})
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	periodDetails := make([]PeriodDetailDto, 0)
@@ -77,6 +82,7 @@ func (ps *PeriodService) GetPeriodDetails(w http.ResponseWriter, r *http.Request
 		var periodDetail PeriodDetail
 		err := cur.Decode(&periodDetail)
 		if err != nil {
+			log.Print(err)
 			return
 		}
 		periodDetails = append(periodDetails, periodDetail.toDto())
@@ -89,25 +95,30 @@ func (ps *PeriodService) CreatePeriodDetails(w http.ResponseWriter, r *http.Requ
 	vars := mux.Vars(r)
 	periodId, err := primitive.ObjectIDFromHex(vars["id"])
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	err = r.ParseForm()
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	name := r.Form.Get("title")
 	amount, err := strconv.Atoi(r.Form.Get("amount"))
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	dType := Type(r.Form.Get("type"))
 	periodDetail := NewPeriodDetail(name, amount, dType, periodId)
 	objId, err := ps.createPeriodDetail(periodDetail)
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	insertedPeriodDetail, err := ps.getPeriodDetailById(objId)
 	if err != nil {
+		log.Print(err)
 		return
 	}
 	tmpl := template.Must(template.ParseFiles(index))
@@ -118,12 +129,14 @@ func (ps *PeriodService) GetPeriods() ([]PeriodDto, error) {
 	var periods []PeriodDto
 	cur, err := ps.periodCol.Aggregate(context.TODO(), periodsIncomeExpenseQuery)
 	if err != nil {
+		log.Print(err)
 		return nil, err
 	}
 	for cur.Next(context.TODO()) {
 		var period PeriodIncomeExpense
 		err := cur.Decode(&period)
 		if err != nil {
+			log.Print(err)
 			return nil, err
 		}
 		periods = append(periods, period.toDto())
