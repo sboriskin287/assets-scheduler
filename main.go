@@ -20,10 +20,10 @@ func main() {
 	router.HandleFunc("/period/{id}/details", ps.GetPeriodDetails).Methods("GET")
 	router.HandleFunc("/period/{id}/details", ps.CreatePeriodDetails).Methods("POST")
 	srv := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":443",
 		Handler:      router,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	log.Fatal(srv.ListenAndServe())
+	log.Fatal(srv.ListenAndServeTLS("cert/public.crt", "cert/private.key"))
 }
